@@ -1,3 +1,5 @@
+# This was written with the help of Claude AI, but substantial written text is mine.
+
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
@@ -47,24 +49,73 @@ colors = {'speculative': '#e74c3c', 'realistic': '#3498db', 'other': '#95a5a6'}
 # HOME PAGE CONTENT
 # ============================================
 
-st.title("Distinguishing Speculative from Realistic Fiction")
+st.title("Wikipedia Novels: Speculative vs. Realistic Fiction")
 st.markdown("""
 ### Overview
 
-This project analyzes **709 novels from Wikidata** to investigate the relationship between 
-literary period and fiction type (speculative vs. realistic).
+The dataset I worked with contains **709 novels from Wikiproject Novels**, and this project 
+explores the relationship between literary period and a novel's fiction type (i.e. speculative vs. 
+realistic fiction). After first getting the data, I had 944 articles. However, I filtered through
+using "instance of" to determine which articles were truly about novels as opposed to actors or
+films, which gave me my 709 articles.
 
 ---
 
 ### Research Question
 
-**Main Question:** Is there a significant relationship between literary period and fiction type?
+**Main Question:** Is there a relationship between literary period and fiction genre?
 
-**Sub-Question:** Can this temporal relationship improve automated genre classification?
+**Sub-Question:** Does literary period improve genre classification?
 
 ---
+            
+### Dataset Summary
+""")
 
-### Key Findings
+col1, col2, col3, col4, col5 = st.columns(5)
+with col1:
+    st.metric("Total", len(df))
+with col2:
+    st.metric("Speculative", len(df[df['fiction_type']=='speculative']))
+with col3:
+    st.metric("Realistic", len(df[df['fiction_type']=='realistic']))
+with col4:
+    st.metric("Other", len(df[df['fiction_type']=='other']))
+with col5:
+    st.metric("Unclassified", len(df[df['fiction_type'].isna()]))
+
+st.markdown("---")
+
+st.markdown("### Fiction Type Definitions")
+
+col1, col2 = st.columns(2)
+with col1:
+    st.markdown("""
+    **Speculative Fiction**
+    - Fantasy
+    - Science Fiction
+    - Horror
+    - Gothic
+    - Dystopian/Utopian
+    - Fairy Tales
+    - Magic Realism
+    - etc.
+    """)
+with col2:
+    st.markdown("""
+    **Realistic Fiction**
+    - Historical Fiction
+    - Romance
+    - Mystery/Crime
+    - Autobiography/Memoir
+    - Literary Fiction
+    - etc.
+    """)
+
+st.markdown("""
+---
+
+### Findings
 """)
 
 col1, col2, col3 = st.columns(3)
@@ -73,39 +124,17 @@ with col1:
 with col2:
     st.metric("Text + Period Model", "75.8%", delta="+6.4%")
 with col3:
-    st.metric("Statistical Significance", "p = 0.50", delta="Not Significant")
+    st.metric("Statistical Significance", "p = 0.50", delta="Not Significant", delta_color="inverse")
 
-st.info("""
-**Main Finding:** While adding literary period improves accuracy by 6.4 percentage points (69.4% → 75.8%), 
-this improvement is **not statistically significant** (McNemar's test, p = 0.50). The observed difference 
-may be due to chance rather than a true effect of temporal context.
+st.markdown("""
+**Main Finding:** Although adding literary period did increase text classificatoin accuracy 
+by 6.4% points, conducting a hypothesis test showed that this was not statistically significant
+(p = 0.50). Therefore, the increase in accuracy may be due to chance.
 """)
 
 st.markdown("---")
 
-st.markdown("### Fiction Type Definitions")
-
-col1, col2 = st.columns(2)
-with col1:
-    st.info("""
-    **Speculative Fiction**
-    - Fantasy, Science Fiction
-    - Horror, Gothic
-    - Dystopian/Utopian
-    - Fairy Tales, Magic Realism
-    """)
-with col2:
-    st.info("""
-    **Realistic Fiction**
-    - Historical Fiction, Romance
-    - Mystery, Crime, Thriller
-    - Autobiography, Memoir
-    - Literary Fiction
-    """)
-
-st.markdown("---")
-
-st.markdown("### Evolution Over Time")
+st.markdown("### Change Over Time")
 
 decade_counts = pd.crosstab(df_classified['decade'], df_classified['fiction_type'])
 
@@ -128,7 +157,7 @@ fig.update_layout(
 )
 st.plotly_chart(fig, use_container_width=True, key="home_timeline")
 
-st.markdown("**Observation:** Speculative fiction shows significant growth starting in the mid-20th century.")
+st.markdown("**Observation:** Speculative fiction seems to become more dominant from 1950.")
 
 st.markdown("---")
 
@@ -157,36 +186,15 @@ fig.update_layout(
 )
 st.plotly_chart(fig, use_container_width=True, key="home_period")
 
-st.markdown("**Observation:** Distinct temporal patterns explain why literary period improves classification.")
+st.markdown("**Observation:** Genre distribution does seem (visually) to change across period.")
 
 st.markdown("---")
 
-st.markdown("### Implications")
+st.markdown("### Takeaways")
 
-col1, col2 = st.columns(2)
-with col1:
-    st.markdown("""
-    **For Computational Analysis:**
-    - 6.4% accuracy improvement observed but not statistically significant
-    - Small test set (62 novels) limits statistical power
-    - Model exhibits class imbalance bias (56% speculative training data)
-    - 75.8% accuracy still above 50% baseline
+st.markdown("""
+    - 6.4% accuracy increase observed but was not statistically significant
+    - 75.8% accuracy remains above a 50% baseline of random guessing
+    - Speculative fiction seems to have grown in 20th century
+    - Relationship exists visually, but period doesn't improve prediction
     """)
-with col2:
-    st.markdown("""
-    **For Literary Understanding:**
-    - Descriptive patterns show genre evolution over time
-    - Speculative fiction grew significantly in 20th century
-    - Relationship exists visually but doesn't improve prediction
-    - Future work needs larger datasets for significance testing
-    """)
-
-# Sidebar
-st.sidebar.markdown(f"""
-**Dataset Summary**
-- Total novels: **{len(df)}**
-- Speculative: {len(df[df['fiction_type']=='speculative'])}
-- Realistic: {len(df[df['fiction_type']=='realistic'])}
-- Other/Ambiguous: {len(df[df['fiction_type']=='other'])}
-- Unclassified: {len(df[df['fiction_type'].isna()])}
-""")

@@ -1,3 +1,5 @@
+# This was written with the help of Claude AI, but substantial written text is mine.
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -20,7 +22,7 @@ st.markdown("---")
 
 # Data Collection
 st.header("1. Data Collection")
-st.markdown("**Source:** Wikidata SPARQL queries")
+st.markdown("**Source:** Wikidata queries")
 
 col1, col2, col3, col4 = st.columns(4)
 with col1:
@@ -39,10 +41,10 @@ st.header("2. Feature Engineering")
 
 st.subheader("2.1 Fiction Type")
 st.markdown("""
-Mapped 163 Wikidata genres → 3 categories:
-- **Speculative** (405): fantasy, sci-fi, horror, dystopian
-- **Realistic** (227): historical, romance, mystery, memoir
-- **Other** (31): ambiguous/hybrid works
+Mapped Wikidata novel genres into three categories:
+- **Speculative** (405): fantasy, sci-fi, horror, dystopian, etc.
+- **Realistic** (227): historical, romance, mystery, etc.
+- **Other** (31): ambiguous or multi-genre
 """)
 
 fiction_dist = df_classified['fiction_type'].value_counts()
@@ -58,7 +60,9 @@ period_table = pd.DataFrame({
 st.table(period_table)
 
 st.subheader("2.3 Text Features")
-st.markdown("Combined: title + description + first line. Preprocessing: removed proper nouns, numbers.")
+st.markdown("In terms of text to analyze, I used a combinations of a novel's title, description, " \
+"and where available, first line, last line, and epigraph. " \
+"During text cleaning, I removed proper nouns and numbers.")
 
 st.markdown("---")
 
@@ -66,9 +70,17 @@ st.markdown("---")
 st.header("3. Text Classification")
 
 st.markdown("""
-**Binary:** Speculative vs. Realistic (248 novels, 80/20 split)
+For genre classification, I split novels into one of three categories: speculative, realistic, or other, based
+on their given genre. I trained two models: one with text only, and one with text + period. 
 
-**Model:** Random Forest (n=200, depth=20)
+I filtered the dataset for novels where the cleaned text contained at least 15 characters. This removed novels whose text
+consisted mostly of metadata like author names and publication years. For feature extraction, however, I used the original text 
+to keep any words wrongly classified as proper nouns due to capitalization (in the case of novel titles). 
+
+
+**Breakdown:** Speculative vs. Realistic (248 novels, 80/20 split)
+
+**Model Used:** Random Forest (n=200, depth=20)
 
 **Features:** CountVectorizer (1000 features) + Literary Period
 """)
@@ -90,7 +102,7 @@ fig.update_layout(title='Model Performance', yaxis_range=[0, 100], height=400)
 st.plotly_chart(fig, use_container_width=True, key="method2")
 
 # Confusion Matrix
-st.subheader("Confusion Matrix: Model 2")
+st.subheader("Confusion Matrix for Model 2")
 
 confusion_data = {
     'Predicted Realistic': [13, 0],
@@ -110,13 +122,11 @@ col1, col2 = st.columns(2)
 with col1:
     st.markdown("""
     **Interpretation:**
-    - **100% recall on speculative** (34/34)
-    - **46.4% recall on realistic** (13/28)
-    - Predicts speculative 79% of time (49/62)
-    
-    **Class Imbalance:**
-    - Training: 56% speculative, 44% realistic
-    - Model favors majority class
+    - We see a  100% recall on speculative fiction (34/34)
+    - We see a 46.4% recall on realistic fiction (13/28)
+    - The model predicts speculative 79% of time (49/62)
+    - In the training data, 56% speculative, 44% realistic
+    - Therefore, the model favors speculative
     """)
 with col2:
     st.dataframe(confusion_df)
@@ -133,7 +143,7 @@ st.markdown("""
 
 **H₁:** Period DOES improve classification
 
-**McNemar's Test Results:**
+**Test Results:**
 - Test statistic: 0.0000
 - p-value: 0.5000
 - Significance level (α): 0.05
@@ -147,16 +157,9 @@ with col2:
 with col3:
     st.metric("α", "0.05")
 
-st.warning("""
-**Result:** Fail to reject null hypothesis (p = 0.5000 ≥ 0.05)
+st.markdown("""
+**Result:** Fail to reject null hypothesis (p = 0.5000 > 0.05)
 
-While Model 2 shows higher overall accuracy (75.8% vs 69.4%), the improvement is **not statistically significant** 
-according to McNemar's test. This suggests that the accuracy difference may be due to chance rather than 
-a true improvement from adding literary period.
-
-**Why this happened:**
-- McNemar's test looks at *disagreements* between models
-- Both models made errors on similar novels
-- The 6.4% difference doesn't translate to significant disagreement patterns
-- Small test set (62 novels) limits statistical power
+Although Model 2 had a higher accuracy than Model 1 (75.8% vs 69.4%), the improvement is not statistically significant.
+Again, this suggests that the increase in accuracy may be due to chance.
 """)

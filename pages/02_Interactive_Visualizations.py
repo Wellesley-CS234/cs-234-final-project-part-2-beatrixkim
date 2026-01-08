@@ -1,3 +1,5 @@
+# This was written with the help of Claude AI, but substantial written text is mine.
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -16,7 +18,6 @@ df_classified = df[df['fiction_type'].notna()].copy()
 colors = {'speculative': '#e74c3c', 'realistic': '#3498db', 'other': '#95a5a6'}
 
 st.title("Interactive Visualizations")
-st.markdown("Explore patterns across 709 novels")
 st.markdown("---")
 
 # VIZ 1: Timeline with slider
@@ -50,8 +51,15 @@ st.markdown("---")
 # VIZ 2: Geographic
 st.header("2. Geographic Distribution")
 
+st.markdown("""
+**Note:** I consolidated the following country groups:
+- **United Kingdom**: Includes "United Kingdom", "England", "United Kingdom of Great Britain and Ireland", 
+  "Kingdom of Great Britain", "Great Britain", etc.
+- **United States**: Includes "United States" and "United States of America"
+""")
+
 top_countries = df_classified['country_consolidated'].value_counts().head(15).index.tolist()
-selected = st.multiselect("Countries:", top_countries, default=top_countries[:5])
+selected = st.multiselect("Select Countries to Display:", top_countries, default=top_countries)
 
 if selected:
     df_geo = df_classified[df_classified['country_consolidated'].isin(selected)]
@@ -97,36 +105,8 @@ if types:
 
 st.markdown("---")
 
-# VIZ 4: Predictions
-st.header("4. Model Predictions")
-
-df_predicted = df[df['is_predicted'] == True].copy()
-
-col1, col2 = st.columns(2)
-with col1:
-    st.metric("Predicted", len(df_predicted))
-    st.metric("Avg Confidence", f"{df_predicted['prediction_confidence'].mean():.1%}")
-    
-    fig = px.histogram(df_predicted, x='prediction_confidence', nbins=20,
-                      title='Prediction Confidence')
-    st.plotly_chart(fig, use_container_width=True, key="viz4a")
-
-with col2:
-    pred_counts = df_predicted['fiction_type'].value_counts()
-    fig = px.bar(x=pred_counts.index, y=pred_counts.values, color=pred_counts.index,
-                color_discrete_map=colors, title='Predicted Types')
-    fig.update_layout(showlegend=False)
-    st.plotly_chart(fig, use_container_width=True, key="viz4b")
-
-st.markdown("**High Confidence (>70%)**")
-high_conf = df_predicted[df_predicted['prediction_confidence'] > 0.7].sort_values('prediction_confidence', ascending=False)
-st.dataframe(high_conf[['label', 'fiction_type', 'prediction_confidence', 'literary_period']].head(10),
-            use_container_width=True)
-
-st.markdown("---")
-
-# VIZ 5: Explorer
-st.header("5. Novel Explorer")
+# VIZ 4: Explorer
+st.header("4. Novel Explorer")
 
 col1, col2, col3, col4 = st.columns(4)
 with col1:
