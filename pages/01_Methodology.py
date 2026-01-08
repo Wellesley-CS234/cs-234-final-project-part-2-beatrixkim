@@ -45,6 +45,9 @@ Mapped Wikidata novel genres into three categories:
 - **Speculative** (405): fantasy, sci-fi, horror, dystopian, etc.
 - **Realistic** (227): historical, romance, mystery, etc.
 - **Other** (31): ambiguous or multi-genre
+            
+Note: The visualization below shows the distribution after running the model on
+novels with sufficient text.
 """)
 
 fiction_dist = df_classified['fiction_type'].value_counts()
