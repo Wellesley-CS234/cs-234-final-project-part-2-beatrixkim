@@ -3,7 +3,7 @@
 import streamlit as st
 import pandas as pd
 
-st.set_page_config(page_title="Summary and Ethics", page_icon="", layout="wide")
+st.set_page_config(page_title="Summary and Ethics", layout="wide")
 
 # Load data from session state
 if 'data' not in st.session_state:

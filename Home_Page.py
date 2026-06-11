@@ -127,7 +127,7 @@ with col3:
     st.metric("Statistical Significance", "p = 0.50", delta="Not Significant", delta_color="inverse")
 
 st.markdown("""
-**Main Finding:** Although adding literary period did increase text classificatoin accuracy 
+**Main Finding:** Although adding literary period did increase text classification accuracy 
 by 6.4% points, conducting a hypothesis test showed that this was not statistically significant
 (p = 0.50). Therefore, the increase in accuracy may be due to chance.
 """)

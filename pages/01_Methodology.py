@@ -5,7 +5,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-st.set_page_config(page_title="Methodology", page_icon="", layout="wide")
+st.set_page_config(page_title="Methodology", layout="wide")
 
 # Load data from session state
 if 'data' not in st.session_state:
